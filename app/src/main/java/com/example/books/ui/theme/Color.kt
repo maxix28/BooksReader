@@ -1,7 +1,7 @@
 package com.example.compose
 import androidx.compose.ui.graphics.Color
 
-val md_theme_light_primary = Color(0xFF1657C8)
+val md_theme_light_primary = Color(0xFF5083DB)
 val md_theme_light_onPrimary = Color(0xFFFFFFFF)
 val md_theme_light_primaryContainer = Color(0xFFDAE2FF)
 val md_theme_light_onPrimaryContainer = Color(0xFF001847)

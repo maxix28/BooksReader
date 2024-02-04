@@ -92,6 +92,8 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+//coil
+    implementation("io.coil-kt:coil-compose:2.5.0")
 }
 kapt {
     correctErrorTypes = true

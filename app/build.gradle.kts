@@ -2,6 +2,8 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id ("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
+
 
 }
 
@@ -73,11 +75,23 @@ dependencies {
     implementation("androidx.compose.material3:material3-window-size-class:1.1.2")
     implementation("androidx.compose.material3:material3-adaptive:1.0.0-alpha05")
     implementation("androidx.compose.material3:material3-adaptive-navigation-suite:1.0.0-alpha02")
-
+//Room
 
     implementation("androidx.room:room-runtime:2.6.1")
     implementation ("androidx.room:room-ktx:2.6.1")
     kapt ("androidx.room:room-compiler:2.6.1")
+
+
+    //Hilt
+    implementation ("androidx.hilt:hilt-navigation-compose:1.1.0")
+
+    implementation("com.google.dagger:hilt-android:2.48")
+    kapt("com.google.dagger:hilt-android-compiler:2.48")
+
+    //ViewModel
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
 }
 kapt {
     correctErrorTypes = true

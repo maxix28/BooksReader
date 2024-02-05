@@ -11,12 +11,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -30,12 +33,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role.Companion.Image
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.example.books.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -54,8 +60,10 @@ fun AddBook(
 
     val singlePhotoPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
-        onResult ={uri -> selectedImageUri= uri
-        addViewModel.setPhoto(uri!!)}
+        onResult = { uri ->
+            selectedImageUri = uri
+            addViewModel.setPhoto(uri!!)
+        }
     )
     val coroutineScope = rememberCoroutineScope()
     Column(
@@ -66,33 +74,41 @@ fun AddBook(
         horizontalAlignment = Alignment.CenterHorizontally
 
     ) {
-        IconButton(onClick = { singlePhotoPicker.launch(
-          PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-        ) }, modifier = modifier.size(150.dp)) {
-            Column {
-                Image(
-                    painter = painterResource(id = R.drawable.image_fill0_wght400_grad0_opsz24),
-                    contentDescription = null, modifier = modifier.size(90.dp)
-                )
-                Text(text = "Add book photo", fontSize = 10.sp)
+        IconButton(onClick = {
+            singlePhotoPicker.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
+        }, modifier = modifier.size(150.dp).background(Color.Transparent), ) {
+            Column (){
+                if(selectedImageUri== null) {
+                    Image(
+                        painter = painterResource(id = R.drawable.image_fill0_wght400_grad0_opsz24),
+                        contentDescription = null, modifier = modifier.size(90.dp)
+                    )
+                    Text(text = "Add book photo", fontSize = 10.sp)
+                }
+                else{
+                    AsyncImage(
+                       model = selectedImageUri,contentDescription = null)
+                }
             }
 
         }
 
 
-        Column {
+        Column (verticalArrangement = Arrangement.Center){
             OutlinedTextField(
                 value = addViewModel.UIState.name,
                 onValueChange = { addViewModel.setName(it) },
                 label = {
                     Text("Name")
                 },
-                modifier = modifier.padding(10.dp)
+                modifier = modifier.padding(5.dp), singleLine = true
             )
             OutlinedTextField(value = addViewModel.UIState.author,
                 onValueChange = { addViewModel.setAuthor(it) }, label = {
                     Text("Author")
-                }, modifier = modifier.padding(10.dp)
+                }, modifier = modifier.padding(5.dp), singleLine = true
             )
             OutlinedTextField(
                 value = addViewModel.UIState.expectation,
@@ -100,14 +116,18 @@ fun AddBook(
                 label = {
                     Text("Expectation")
                 },
-                modifier = modifier.padding(10.dp)
+                modifier = modifier.padding(5.dp)
             )
-            OutlinedTextField(value = addViewModel.UIState.pages,
+            OutlinedTextField(
+                value = addViewModel.UIState.pages,
                 onValueChange = {
                     addViewModel.setPages(it)
-                }, label = {
+                },
+                label = {
                     Text("Pages")
-                }, modifier = modifier.padding(10.dp)
+                },
+                modifier = modifier.padding(10.dp), singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             )
 
         }
@@ -124,10 +144,11 @@ fun AddBook(
             },
             modifier = modifier
                 //    .background(MaterialTheme.colorScheme.primary)
-                .clip(RoundedCornerShape(15.dp))
+                .clip(RoundedCornerShape(15.dp)).height(50.dp)
 
         ) {
-            Text("Start reading", modifier = modifier.padding(10.dp))
+            Text("Start reading", //modifier = modifier.padding(10.dp)
+            )
         }
     }
 

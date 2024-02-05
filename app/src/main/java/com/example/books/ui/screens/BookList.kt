@@ -23,7 +23,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.PointerIcon.Companion.Text
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,27 +43,29 @@ fun BookList(
     booksViewModel: BookListViewModel = hiltViewModel<BookListViewModel>()
 ) {
     val UIState = booksViewModel.AddUiState.collectAsState()
-  LazyColumn(modifier = modifier.background(MaterialTheme.colorScheme.background).padding(5.dp)){
-      items(UIState.value.Books){
-          oneBook(book = it)
-      }
-  }
+    LazyColumn(modifier = modifier
+        .background(MaterialTheme.colorScheme.background)
+        .padding(5.dp)) {
+        items(UIState.value.Books) {
+            oneBook(book = it)
+        }
+    }
 
 }
 
 @Composable
 fun oneBook(modifier: Modifier = Modifier, book: Book) {
-    var progress :Float= 0.toFloat()
-    if(book.currentPage!= 0) {
-        progress = ((book.currentPage.toFloat() ) / book.pages.toFloat())
+    var progress: Float = 0.toFloat()
+    if (book.currentPage != 0) {
+        progress = ((book.currentPage.toFloat()) / book.pages.toFloat())
     }
 
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(5.dp)
-            //.height(.dp)
-    ,
+        //.height(.dp)
+        ,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.onPrimary,
         ),
@@ -74,13 +78,19 @@ fun oneBook(modifier: Modifier = Modifier, book: Book) {
                 Icon(
                     painter = painterResource(id = R.drawable.image_fill0_wght400_grad0_opsz24),
                     contentDescription = null,
-                    modifier = modifier.padding(5.dp).size(50.dp).padding(5.dp)
+                    modifier = modifier
+                        .padding(5.dp)
+                        .size(50.dp)
+                        .padding(5.dp)
                 )
 
             } else {
                 AsyncImage(
                     model = book.ImageStr,
-                    contentDescription = "Translated description of what the image contains"
+                    contentDescription = "Translated description of what the image contains",
+                    modifier = modifier.padding(5.dp).size(50.dp).padding(5.dp)
+                        .clip(shape = androidx.compose.foundation.shape.RoundedCornerShape(10)),
+                    contentScale = ContentScale.Crop
                 )
 
             }
@@ -89,8 +99,7 @@ fun oneBook(modifier: Modifier = Modifier, book: Book) {
                     book.name, modifier = modifier.padding(
                         horizontal = 5.dp,
                         vertical = 2.dp
-                    )
-                    ,
+                    ),
                     fontWeight = FontWeight.Bold
                 )
                 Row(
@@ -100,7 +109,11 @@ fun oneBook(modifier: Modifier = Modifier, book: Book) {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(book.author)
-                    Text("${book.pages} pages", fontSize = 13.sp, modifier  = modifier.padding(horizontal = 5.dp))
+                    Text(
+                        "${book.pages} pages",
+                        fontSize = 13.sp,
+                        modifier = modifier.padding(horizontal = 5.dp)
+                    )
 
                 }
                 Row(
@@ -110,11 +123,11 @@ fun oneBook(modifier: Modifier = Modifier, book: Book) {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     LinearProgressIndicator(
-                        progress = { progress},
+                        progress = { progress },
                         modifier = Modifier.fillMaxWidth(),
                     )
 
-                   // Text("${book.pages} pages", fontSize = 13.sp, modifier  = modifier.padding(horizontal = 5.dp))
+                    // Text("${book.pages} pages", fontSize = 13.sp, modifier  = modifier.padding(horizontal = 5.dp))
 
                 }
 

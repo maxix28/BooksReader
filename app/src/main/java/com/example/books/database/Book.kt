@@ -1,5 +1,6 @@
 package com.example.books.database
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -13,5 +14,6 @@ data class Book(
     var pages:Int,
     var currentPage:Int = 0,
     var done:Boolean= false,
-    var ImageStr:String? = null
+    @ColumnInfo( typeAffinity = ColumnInfo.BLOB)
+    var ImageStr: ByteArray? = null
 )

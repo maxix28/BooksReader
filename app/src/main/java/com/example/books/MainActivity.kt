@@ -32,8 +32,8 @@ class MainActivity : ComponentActivity() {
 //                        AddBook()
 //                        BookList()
 //                    }
-                    BookList()
-
+                   BookList()
+                   // AddBook()
                 }
             }
         }

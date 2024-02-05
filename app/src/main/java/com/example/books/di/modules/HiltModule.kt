@@ -13,6 +13,7 @@ import dagger.hilt.components.SingletonComponent
 @Module
 @InstallIn(SingletonComponent::class)
 class HiltModule {
+
 @Provides
 fun provideBookDao(app:Application):BookDao{
     return BooksDataBase.getDataBase(app).bookDao()

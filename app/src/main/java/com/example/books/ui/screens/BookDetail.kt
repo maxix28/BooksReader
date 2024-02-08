@@ -2,9 +2,7 @@ package com.example.books.ui.screens
 
 import android.net.Uri
 import android.util.Log
-import android.widget.Button
-import android.widget.ProgressBar
-import android.widget.Toast
+
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -36,9 +34,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.input.pointer.PointerIcon.Companion.Text
+
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -54,18 +52,19 @@ import kotlinx.coroutines.withContext
 @Composable
 fun BookDetail(
     modifier: Modifier = Modifier,
-    bookDetailViewModel: BookDetailViewModel = hiltViewModel<BookDetailViewModel>()
+    bookDetailViewModel: BookDetailViewModel = hiltViewModel<BookDetailViewModel>(),
+    NavigateBack:()->Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     Column(modifier = modifier.fillMaxSize()) {
         // val UIState = bookDetailViewModel.UIState
         when (bookDetailViewModel.UIState) {
             BookDetailUIState.Error -> {
-                androidx.compose.material3.Text(text = "Error")
+              Text(text = "Error")
             }
 
             BookDetailUIState.Loading -> {
-                androidx.compose.material3.Text(text = "Loading")
+            Text(text = "Loading")
 
             }
 
@@ -87,7 +86,14 @@ fun BookDetail(
                                 bookDetailViewModel.UpdateBook()
                             }
                         }
-                    })
+                    },
+                    onDelete =  {
+                        coroutineScope.launch {
+                            withContext(Dispatchers.IO) {
+                              bookDetailViewModel.deleteBook()
+                            }
+                        }
+                    }, NavigateBack =  NavigateBack)
             }
         }
     }
@@ -99,6 +105,7 @@ fun BookSuccess(
     modifier: Modifier = Modifier,
     onPageChange: (Int) -> Unit,
     onPhotoChange: (Uri) -> Unit,
+    onDelete:()->Unit,  NavigateBack:()->Unit
 ) {
     var selectedImageUri by remember {
         mutableStateOf<Uri?>(null)
@@ -125,7 +132,9 @@ fun BookSuccess(
     }
 
     Column(modifier = modifier.fillMaxSize()) {
-Row(modifier = modifier.fillMaxWidth().padding(10.dp), horizontalArrangement = Arrangement.Center){
+Row(modifier = modifier
+    .fillMaxWidth()
+    .padding(10.dp), horizontalArrangement = Arrangement.Center){
     if (Book.ImageStr != null){
         AsyncImage(
             model = Book.ImageStr,
@@ -145,10 +154,13 @@ Row(modifier = modifier.fillMaxWidth().padding(10.dp), horizontalArrangement = A
     else{
         Image(
             painter = painterResource(id = R.drawable.image_fill0_wght400_grad0_opsz24),
-            contentDescription = null, modifier = modifier.size(150.dp)
-                .clickable {  singlePhotoPicker.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            ) }
+            contentDescription = null, modifier = modifier
+                .size(150.dp)
+                .clickable {
+                    singlePhotoPicker.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                }
         )
     }
 
@@ -199,6 +211,15 @@ Row(modifier = modifier.fillMaxWidth().padding(10.dp), horizontalArrangement = A
         }, modifier = modifier.padding(10.dp)
 
         )
+
+        Button(onClick = {
+            onDelete()
+            NavigateBack()
+        }
+        ) {
+
+
+        }
     }
 
 

@@ -26,7 +26,9 @@ data class AddUiState(
 class AddBookViewModel @Inject
 constructor(private val bookRepository: BookRepository, private val app:Application) : ViewModel() {
     var UIState by mutableStateOf(AddUiState())
-
+fun resetUI(){
+    UIState = AddUiState()
+}
     fun setAuthor(it: String) {
         var curentUI = UIState
         UIState = curentUI.copy(author = it)

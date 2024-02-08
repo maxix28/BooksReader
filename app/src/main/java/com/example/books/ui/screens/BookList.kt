@@ -1,7 +1,9 @@
 package com.example.books.ui.screens
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -57,6 +59,7 @@ fun BookList(
 
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun oneBook(modifier: Modifier = Modifier, book: Book, onDetail: (String) -> Unit) {
     var progress: Float = 0.toFloat()
@@ -67,7 +70,11 @@ fun oneBook(modifier: Modifier = Modifier, book: Book, onDetail: (String) -> Uni
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(5.dp)
+            .padding(5.dp).
+                combinedClickable(
+                    onClick = {onDetail(book.id.toString())},
+                    onLongClick = {}
+                )
         //.height(.dp)
         ,
         colors = CardDefaults.cardColors(
@@ -76,7 +83,7 @@ fun oneBook(modifier: Modifier = Modifier, book: Book, onDetail: (String) -> Uni
         elevation = CardDefaults.cardElevation(
             defaultElevation = 5.dp
         ),
-        onClick = { onDetail(book.id.toString()) }
+       // onClick = { onDetail(book.id.toString()) }
     ) {
         Row {
             if (book.ImageStr == null) {

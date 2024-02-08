@@ -45,7 +45,7 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
                 type = NavType.StringType
             })
         ) {
-            BookDetail()
+            BookDetail(NavigateBack = {navController.navigate(NavDestination.BookList.route)})
         }
 
     }

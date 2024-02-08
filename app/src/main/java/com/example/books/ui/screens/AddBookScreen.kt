@@ -20,6 +20,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -91,9 +92,9 @@ fun AddBook(
         }, modifier = modifier.size(150.dp).background(Color.Transparent), ) {
             Column (){
                 if(selectedImageUri== null) {
-                    Image(
+                    Icon(
                         painter = painterResource(id = R.drawable.image_fill0_wght400_grad0_opsz24),
-                        contentDescription = null, modifier = modifier.size(90.dp)
+                        contentDescription = null, modifier = modifier.size(90.dp), tint = MaterialTheme.colorScheme.primary
                     )
                     Text(text = "Add book photo", fontSize = 10.sp)
                 }
@@ -136,7 +137,7 @@ fun AddBook(
                 label = {
                     Text("Pages")
                 },
-                modifier = modifier.padding(10.dp), singleLine = true,
+                modifier = modifier.padding(5.dp), singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             )
 

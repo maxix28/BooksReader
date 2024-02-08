@@ -1,5 +1,6 @@
 package com.example.books.ui.screens
 
+import android.graphics.drawable.Icon
 import android.net.Uri
 import android.util.Log
 
@@ -19,8 +20,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -53,24 +60,23 @@ import kotlinx.coroutines.withContext
 fun BookDetail(
     modifier: Modifier = Modifier,
     bookDetailViewModel: BookDetailViewModel = hiltViewModel<BookDetailViewModel>(),
-    NavigateBack:()->Unit
+    NavigateBack: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     Column(modifier = modifier.fillMaxSize()) {
         // val UIState = bookDetailViewModel.UIState
         when (bookDetailViewModel.UIState) {
             BookDetailUIState.Error -> {
-              Text(text = "Error")
+                Text(text = "Error")
             }
 
             BookDetailUIState.Loading -> {
-            Text(text = "Loading")
+                Text(text = "Loading")
 
             }
 
             is BookDetailUIState.Success -> {
-                BookSuccess(
-                    bookDetailViewModel.UIState as BookDetailUIState.Success,
+                BookSuccess(bookDetailViewModel.UIState as BookDetailUIState.Success,
                     onPageChange = {
                         coroutineScope.launch {
                             withContext(Dispatchers.IO) {
@@ -87,13 +93,15 @@ fun BookDetail(
                             }
                         }
                     },
-                    onDelete =  {
+                    onDelete = {
                         coroutineScope.launch {
                             withContext(Dispatchers.IO) {
-                              bookDetailViewModel.deleteBook()
+                                bookDetailViewModel.deleteBook()
                             }
                         }
-                    }, NavigateBack =  NavigateBack)
+                    },
+                    NavigateBack = NavigateBack
+                )
             }
         }
     }
@@ -105,24 +113,24 @@ fun BookSuccess(
     modifier: Modifier = Modifier,
     onPageChange: (Int) -> Unit,
     onPhotoChange: (Uri) -> Unit,
-    onDelete:()->Unit,  NavigateBack:()->Unit
+    onDelete: () -> Unit,
+    NavigateBack: () -> Unit
 ) {
     var selectedImageUri by remember {
         mutableStateOf<Uri?>(null)
     }
 
-    val singlePhotoPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri ->
-            try {
-                selectedImageUri = uri
-                onPhotoChange(uri!!)
-            }catch (e:Exception){
-                println("Image error ")
-            }
+    val singlePhotoPicker =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia(),
+            onResult = { uri ->
+                try {
+                    selectedImageUri = uri
+                    onPhotoChange(uri!!)
+                } catch (e: Exception) {
+                    println("Image error ")
+                }
 
-        }
-    )
+            })
     val Book = state.book
     var progress: Float by remember {
         mutableStateOf(0f)
@@ -132,39 +140,62 @@ fun BookSuccess(
     }
 
     Column(modifier = modifier.fillMaxSize()) {
-Row(modifier = modifier
-    .fillMaxWidth()
-    .padding(10.dp), horizontalArrangement = Arrangement.Center){
-    if (Book.ImageStr != null){
-        AsyncImage(
-            model = Book.ImageStr,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = modifier
-                .size(200.dp)
-                .clip(
-                    RoundedCornerShape(10)
+        Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            IconButton(onClick = {
+
+                NavigateBack()
+            }) {
+                //Icon(Icons.Default.ArrowBack)
+                androidx.compose.material3.Icon(
+                    imageVector = Icons.Default.ArrowBack, contentDescription = null
                 )
+            }
+            IconButton(onClick = {
+                onDelete()
+                NavigateBack()
+            }) {
+                //Icon(Icons.Default.ArrowBack)
+                androidx.compose.material3.Icon(
+                    painter = painterResource(id = R.drawable.delete_fill0_wght400_grad0_opsz24),
+                    contentDescription = null
+                )
+            }
+
+        }
+
+        Row(
+            modifier = modifier
                 .fillMaxWidth()
-            ,
-            alignment = Alignment.Center,
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            if (Book.ImageStr != null) {
+                AsyncImage(
+                    model = Book.ImageStr,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = modifier
+                        .size(200.dp)
+                        .clip(
+                            RoundedCornerShape(10)
+                        )
+                        .fillMaxWidth(),
+                    alignment = Alignment.Center,
 
-        )
-    }
-    else{
-        Image(
-            painter = painterResource(id = R.drawable.image_fill0_wght400_grad0_opsz24),
-            contentDescription = null, modifier = modifier
-                .size(150.dp)
-                .clickable {
-                    singlePhotoPicker.launch(
-                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                     )
-                }
-        )
-    }
+            } else {
+                Image(painter = painterResource(id = R.drawable.image_fill0_wght400_grad0_opsz24),
+                    contentDescription = null,
+                    modifier = modifier
+                        .size(150.dp)
+                        .clickable {
+                            singlePhotoPicker.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        })
+            }
 
-}
+        }
 
         Text(
             text = Book.name,
@@ -196,33 +227,24 @@ Row(modifier = modifier
                     .fillMaxWidth(0.5f)
                     .padding(horizontal = 12.dp, vertical = 5.dp)
                     .animateContentSize(),
-
-            )
-
-
+                )
             Text(text = "${state.book.currentPage} of ${Book.pages} pages", fontSize = 13.sp)
         }
-        OutlinedTextField(value = state.book.currentPage.toString(), onValueChange = {
-            try{
-            onPageChange(it.toInt())
-            }catch (e:Exception){
-                Log.e("ERROR",e.message.toString())
-            }
-        }, modifier = modifier.padding(10.dp)
+        OutlinedTextField(
+            value = state.book.currentPage.toString(), onValueChange = {
+                try {
+
+                    onPageChange(it.toInt())
+                } catch (e: Exception) {
+                    Log.e("ERROR", e.message.toString())
+                }
+            }, modifier = modifier.padding(10.dp).width(90.dp)
 
         )
 
-        Button(onClick = {
-            onDelete()
-            NavigateBack()
-        }
-        ) {
 
-
-        }
     }
 
 
-
-
 }
+

@@ -25,6 +25,7 @@ import androidx.navigation.navArgument
 import com.example.books.ui.screens.AddBook
 import com.example.books.ui.screens.BookDetail
 import com.example.books.ui.screens.BookList
+import com.example.books.ui.screens.UserScreen
 
 @Composable
 fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
@@ -46,6 +47,12 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
             })
         ) {
             BookDetail(NavigateBack = {navController.navigate(NavDestination.BookList.route)})
+        }
+        composable(
+            route = NavDestination.UserAccount.route
+
+        ) {
+            UserScreen()
         }
 
     }

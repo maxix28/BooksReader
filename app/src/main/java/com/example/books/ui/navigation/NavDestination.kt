@@ -31,6 +31,12 @@ sealed class NavDestination {
         override val icon: Int = 0
 
     }
+    object UserAccount : Destination {
+        override val route: String
+            get() = "User Account"
+        override val icon: Int = R.drawable.account_circle_fill0_wght400_grad0_opsz24
+
+    }
 
 
 }

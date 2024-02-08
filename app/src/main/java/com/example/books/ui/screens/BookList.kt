@@ -2,16 +2,19 @@ package com.example.books.ui.screens
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -25,8 +28,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon.Companion.Text
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -47,6 +52,23 @@ fun BookList(
     onDetail: (String) -> Unit
 ) {
     val UIState = booksViewModel.AddUiState.collectAsState()
+    if (UIState.value.Books.isEmpty()) {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(vertical = 40.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("Start your reading journey")
+            Image(
+                painter = painterResource(id = R.drawable.keyboard_double_arrow_down_fill0_wght400_grad0_opsz24),
+                contentDescription = null,
+                modifier = modifier.size(40.dp)
+            )
+        }
+
+    }
     LazyColumn(
         modifier = modifier
             .background(MaterialTheme.colorScheme.background)
@@ -70,20 +92,19 @@ fun oneBook(modifier: Modifier = Modifier, book: Book, onDetail: (String) -> Uni
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(5.dp).
-                combinedClickable(
-                    onClick = {onDetail(book.id.toString())},
-                    onLongClick = {}
-                )
+            .padding(5.dp)
+            .combinedClickable(
+                onClick = { onDetail(book.id.toString()) },
+                onLongClick = {}
+            ),
         //.height(.dp)
-        ,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.onPrimary,
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 5.dp
         ),
-       // onClick = { onDetail(book.id.toString()) }
+        // onClick = { onDetail(book.id.toString()) }
     ) {
         Row {
             if (book.ImageStr == null) {
@@ -133,14 +154,24 @@ fun oneBook(modifier: Modifier = Modifier, book: Book, onDetail: (String) -> Uni
                 }
                 Row(
                     modifier = modifier
-                        .fillMaxWidth(0.4f)
+                        .fillMaxWidth()
                         .padding(horizontal = 5.dp, vertical = 5.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    LinearProgressIndicator(
-                        progress = { progress },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+
+                    if (progress >= 1f) {
+
+                     //   Text(text = "Done", fontSize = 14.sp)
+                        Icon(painter = painterResource(id = R.drawable.task_alt_fill0_wght400_grad0_opsz24),
+                            contentDescription = null, tint = MaterialTheme.colorScheme.primary )
+                    } else{
+                        LinearProgressIndicator(
+                            progress = { progress },
+                            modifier = Modifier.fillMaxWidth(0.45f)
+                            ,
+                        )
+                    }
+
 
                     // Text("${book.pages} pages", fontSize = 13.sp, modifier  = modifier.padding(horizontal = 5.dp))
 
@@ -163,7 +194,7 @@ fun bookPreview() {
             pages = 100,
             expectation = "Good",
             author = "Person Person",
-            currentPage = 94
+            currentPage = 101
         ), onDetail = {}
     )
 //    BookList()

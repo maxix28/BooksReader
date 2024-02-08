@@ -13,7 +13,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,13 +36,14 @@ import com.example.books.ui.navigation.NavGraph
 
 @Composable
 fun mainScreen(modifier: Modifier = Modifier) {
-     val navController = rememberNavController()
+    val navController = rememberNavController()
     Scaffold(modifier = modifier.fillMaxSize(), bottomBar = {
-          bottomBar(navController = navController)
+        bottomBar(navController = navController)
     }) { paddingValues ->
         NavGraph(
             modifier = modifier.padding(paddingValues = paddingValues),
-            navController = navController)
+            navController = navController
+        )
 
 
     }
@@ -47,17 +51,21 @@ fun mainScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun bottomBar(modifier: Modifier = Modifier,  navController: NavHostController) {
+fun bottomBar(modifier: Modifier = Modifier, navController: NavHostController) {
 
     val screens = listOf(
-        NavDestination.AddBook,
         NavDestination.BookList,
-    )
+        NavDestination.AddBook,
+        NavDestination.UserAccount,
+
+
+        )
 
     val navBAckStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBAckStackEntry?.destination
 
-    BottomNavigation( modifier = modifier.background(Color.Transparent)) {
+    // BottomNavigation( modifier = modifier, contentColor = Color.Transparent, elevation = 10.dp) {
+    Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
         screens.forEach { screen ->
             AddItem(
                 screen = screen,
@@ -103,17 +111,24 @@ fun bottomBar(modifier: Modifier = Modifier,  navController: NavHostController) 
 fun RowScope.AddItem(
     screen: Destination,
     navController: NavHostController,
-    currentDestination: androidx.navigation.NavDestination?, modifier: Modifier= Modifier
+    currentDestination: androidx.navigation.NavDestination?, modifier: Modifier = Modifier
 ) {
-    BottomNavigationItem(selected = currentDestination?.hierarchy?.any {
-        it.route == screen.route
-    } == true, onClick = { navController.navigate(screen.route) }, icon = { painterResource(id = screen.icon) },
-        modifier = modifier.background(Color.Transparent))
+//    BottomNavigationItem(selected = currentDestination?.hierarchy?.any {
+//        it.route == screen.route
+//    } == true, onClick = { navController.navigate(screen.route) }, icon = { painterResource(id = screen.icon) },
+//        modifier = modifier.background(Color.Transparent),)
+
+    IconButton(onClick = { navController.navigate(screen.route) }) {
+        Icon(painter = painterResource(id = screen.icon),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary)
+    }
 
 }
+
 //
 @Preview(showBackground = true)
 @Composable
 fun botomprew() {
-  bottomBar(navController = rememberNavController())
+    bottomBar(navController = rememberNavController())
 }

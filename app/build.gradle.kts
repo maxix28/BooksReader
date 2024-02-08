@@ -99,7 +99,7 @@ dependencies {
     // navigation
     val nav_version = "2.7.6"
 
-
+    implementation ("androidx.compose.material:material:1.4.2")
 
     // Kotlin
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")

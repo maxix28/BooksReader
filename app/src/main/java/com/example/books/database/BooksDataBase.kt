@@ -17,7 +17,7 @@ abstract  class BooksDataBase :RoomDatabase() {
         fun getDataBase( context: Context): BooksDataBase {
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(context, BooksDataBase::class.java, "Books_database")
-
+                    .allowMainThreadQueries()
                     .fallbackToDestructiveMigration()
                     .build()
                     .also { Instance = it }

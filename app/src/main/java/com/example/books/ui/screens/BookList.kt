@@ -1,5 +1,6 @@
 package com.example.books.ui.screens
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -40,21 +41,24 @@ import org.jetbrains.annotations.Async
 @Composable
 fun BookList(
     modifier: Modifier = Modifier,
-    booksViewModel: BookListViewModel = hiltViewModel<BookListViewModel>()
+    booksViewModel: BookListViewModel = hiltViewModel<BookListViewModel>(),
+    onDetail: (String) -> Unit
 ) {
     val UIState = booksViewModel.AddUiState.collectAsState()
-    LazyColumn(modifier = modifier
-        .background(MaterialTheme.colorScheme.background)
-        .padding(5.dp)) {
+    LazyColumn(
+        modifier = modifier
+            .background(MaterialTheme.colorScheme.background)
+            .padding(5.dp)
+    ) {
         items(UIState.value.Books) {
-            oneBook(book = it)
+            oneBook(book = it, onDetail = onDetail)
         }
     }
 
 }
 
 @Composable
-fun oneBook(modifier: Modifier = Modifier, book: Book) {
+fun oneBook(modifier: Modifier = Modifier, book: Book, onDetail: (String) -> Unit) {
     var progress: Float = 0.toFloat()
     if (book.currentPage != 0) {
         progress = ((book.currentPage.toFloat()) / book.pages.toFloat())
@@ -71,7 +75,8 @@ fun oneBook(modifier: Modifier = Modifier, book: Book) {
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 5.dp
-        )
+        ),
+        onClick = { onDetail(book.id.toString()) }
     ) {
         Row {
             if (book.ImageStr == null) {
@@ -88,7 +93,10 @@ fun oneBook(modifier: Modifier = Modifier, book: Book) {
                 AsyncImage(
                     model = book.ImageStr,
                     contentDescription = "Translated description of what the image contains",
-                    modifier = modifier.padding(5.dp).size(50.dp).padding(5.dp)
+                    modifier = modifier
+                        .padding(5.dp)
+                        .size(50.dp)
+                        .padding(5.dp)
                         .clip(shape = androidx.compose.foundation.shape.RoundedCornerShape(10)),
                     contentScale = ContentScale.Crop
                 )
@@ -149,7 +157,7 @@ fun bookPreview() {
             expectation = "Good",
             author = "Person Person",
             currentPage = 94
-        )
+        ), onDetail = {}
     )
 //    BookList()
 }

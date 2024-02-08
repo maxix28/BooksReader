@@ -1,6 +1,6 @@
 package com.example.books.ui.screens
 
-import android.media.Image
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -8,7 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -50,7 +50,8 @@ import kotlinx.coroutines.withContext
 @Composable
 fun AddBook(
     modifier: Modifier = Modifier,
-    addViewModel: AddBookViewModel = hiltViewModel<AddBookViewModel>()
+    addViewModel: AddBookViewModel = hiltViewModel<AddBookViewModel>(),
+    afterdAdd:()->Unit
 ) {
 
 
@@ -61,8 +62,14 @@ fun AddBook(
     val singlePhotoPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
-            selectedImageUri = uri
-            addViewModel.setPhoto(uri!!)
+            try{
+                selectedImageUri = uri
+                addViewModel.setPhoto(uri!!)
+            }catch (e:Exception){
+                println("Image problem")
+            }
+
+
         }
     )
     val coroutineScope = rememberCoroutineScope()
@@ -75,9 +82,12 @@ fun AddBook(
 
     ) {
         IconButton(onClick = {
-            singlePhotoPicker.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
+
+                singlePhotoPicker.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                )
+
+
         }, modifier = modifier.size(150.dp).background(Color.Transparent), ) {
             Column (){
                 if(selectedImageUri== null) {
@@ -137,7 +147,10 @@ fun AddBook(
                 coroutineScope.launch {
                     withContext(Dispatchers.IO) {
                         addViewModel.AddBook()
+                        addViewModel.resetUI()
+
                     }
+                    afterdAdd()
                 }
 
 
@@ -158,5 +171,5 @@ fun AddBook(
 @Preview(showBackground = true)
 @Composable
 fun prev() {
-    AddBook()
+    AddBook(afterdAdd = {})
 }

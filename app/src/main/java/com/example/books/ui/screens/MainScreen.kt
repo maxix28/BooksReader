@@ -1,6 +1,7 @@
 package com.example.books.ui.screens
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -72,7 +74,14 @@ fun bottomBar(modifier: Modifier = Modifier, navController: NavHostController) {
     val currentDestination = navBAckStackEntry?.destination
 
     // BottomNavigation( modifier = modifier, contentColor = Color.Transparent, elevation = 10.dp) {
-    Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+    Row(
+        modifier = modifier.padding(horizontal = 5.dp)
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f))
+            .clip(
+                RoundedCornerShape(40.dp)
+            ), horizontalArrangement = Arrangement.SpaceAround
+    ) {
         screens.forEach { screen ->
             AddItem(
                 screen = screen,
@@ -142,9 +151,9 @@ fun RowScope.AddItem(
 
                     drawCircle(
                         color = (if (currentDestination?.hierarchy?.any { it.route == screen.route } == true) {
-                         md_theme_light_primaryContainer
+                            md_theme_light_primaryContainer
                         } else Color.Transparent),
-                        radius = (this.size.maxDimension/3)*2
+                        radius = (this.size.maxDimension / 3) * 2
                     )
                 })
     }

@@ -1,6 +1,5 @@
 package com.example.books.ui.screens
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -8,19 +7,13 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -31,8 +24,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.PointerIcon.Companion.Text
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -43,7 +34,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.books.R
 import com.example.books.database.Book
-import org.jetbrains.annotations.Async
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
 fun BookList(
@@ -88,7 +80,8 @@ fun oneBook(modifier: Modifier = Modifier, book: Book, onDetail: (String) -> Uni
     if (book.currentPage != 0) {
         progress = ((book.currentPage.toFloat()) / book.pages.toFloat())
     }
-
+    val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+    val FinishDateString = dateFormat.format(book.startDate)
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -164,6 +157,11 @@ fun oneBook(modifier: Modifier = Modifier, book: Book, onDetail: (String) -> Uni
                      //   Text(text = "Done", fontSize = 14.sp)
                         Icon(painter = painterResource(id = R.drawable.task_alt_fill0_wght400_grad0_opsz24),
                             contentDescription = null, tint = MaterialTheme.colorScheme.primary )
+
+
+                        Text( text = FinishDateString,
+                            modifier = modifier.padding(horizontal = 5.dp),
+                            fontSize = 13.sp)
                     } else{
                         LinearProgressIndicator(
                             progress = { progress },
@@ -173,17 +171,13 @@ fun oneBook(modifier: Modifier = Modifier, book: Book, onDetail: (String) -> Uni
                     }
 
 
-                    // Text("${book.pages} pages", fontSize = 13.sp, modifier  = modifier.padding(horizontal = 5.dp))
 
                 }
-
             }
-
-
         }
     }
-
 }
+
 
 @Preview(showBackground = true)
 @Composable

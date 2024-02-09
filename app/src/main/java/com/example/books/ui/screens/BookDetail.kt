@@ -22,12 +22,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.Icon
 
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,6 +52,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -55,6 +61,8 @@ import com.example.books.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
 fun BookDetail(
@@ -62,9 +70,9 @@ fun BookDetail(
     bookDetailViewModel: BookDetailViewModel = hiltViewModel<BookDetailViewModel>(),
     NavigateBack: () -> Unit
 ) {
+
     val coroutineScope = rememberCoroutineScope()
     Column(modifier = modifier.fillMaxSize()) {
-        // val UIState = bookDetailViewModel.UIState
         when (bookDetailViewModel.UIState) {
             BookDetailUIState.Error -> {
                 Text(text = "Error")
@@ -72,11 +80,11 @@ fun BookDetail(
 
             BookDetailUIState.Loading -> {
                 Text(text = "Loading")
-
             }
 
             is BookDetailUIState.Success -> {
-                BookSuccess(bookDetailViewModel.UIState as BookDetailUIState.Success,
+                BookSuccess(
+                    bookDetailViewModel.UIState as BookDetailUIState.Success,
                     onPageChange = {
                         coroutineScope.launch {
                             withContext(Dispatchers.IO) {
@@ -119,11 +127,6 @@ fun BookSuccess(
     var selectedImageUri by remember {
         mutableStateOf<Uri?>(null)
     }
-    val angle: Float by animateFloatAsState(
-        targetValue = 360F,
-        animationSpec = infiniteRepeatable(
-            tween(2000)))
-
     val singlePhotoPicker =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia(),
             onResult = { uri ->
@@ -133,7 +136,6 @@ fun BookSuccess(
                 } catch (e: Exception) {
                     println("Image error ")
                 }
-
             })
     val Book = state.book
     var progress: Float by remember {
@@ -142,14 +144,15 @@ fun BookSuccess(
     if (Book.currentPage != 0) {
         progress = ((Book.currentPage.toFloat()) / Book.pages.toFloat())
     }
-
+    val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+    val startDateString = dateFormat.format(Book.startDate)
+    val finishDateString = dateFormat.format(Book.FinishDate)
     Column(modifier = modifier.fillMaxSize()) {
         Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             IconButton(onClick = {
 
                 NavigateBack()
             }) {
-                //Icon(Icons.Default.ArrowBack)
                 androidx.compose.material3.Icon(
                     imageVector = Icons.Default.ArrowBack, contentDescription = null
                 )
@@ -187,9 +190,7 @@ fun BookSuccess(
                             RoundedCornerShape(10)
                         )
                         .rotate(rotate)
-                        .clickable { rotate += 90f }
-
-                      ,
+                        .clickable { rotate += 90f },
                     alignment = Alignment.Center,
 
                     )
@@ -207,56 +208,147 @@ fun BookSuccess(
 
         }
 
+
+        // Start Text  name / author
+
         Text(
             text = Book.name,
             fontWeight = FontWeight.Bold,
             fontSize = 25.sp,
             modifier = modifier.padding(horizontal = 30.dp)
         )
-        Text(
-            text = Book.author,
-            fontStyle = FontStyle.Italic,
-            fontSize = 20.sp,
-            modifier = modifier.padding(horizontal = 25.dp)
-        )
-        Row(modifier = modifier.fillMaxWidth()) {
-            LaunchedEffect(key1 = state.book) {
 
-                if (Book.currentPage != 0) {
-                    progress = ((Book.currentPage.toFloat()) / Book.pages.toFloat())
-                }
-            }
-            val progressAnimation by animateFloatAsState(
-                targetValue = progress,
-                animationSpec = tween(durationMillis = 1500, easing = FastOutSlowInEasing),
-                label = ""
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(vertical = 5.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = Book.author,
+                fontStyle = FontStyle.Italic,
+                fontSize = 20.sp,
+                modifier = modifier.padding(horizontal = 25.dp, vertical = 5.dp)
             )
-            LinearProgressIndicator(
-                progress = progressAnimation,
-                modifier = Modifier
-                    .fillMaxWidth(0.5f)
-                    .padding(horizontal = 12.dp, vertical = 5.dp)
-                    .animateContentSize(),
-                )
-            Text(text = "${state.book.currentPage} of ${Book.pages} pages", fontSize = 13.sp)
-        }
-        OutlinedTextField(
-            value = state.book.currentPage.toString(), onValueChange = {
-                try {
 
+            Text(
+                text = startDateString,
+                fontStyle = FontStyle.Italic,
+                fontSize = 14.sp,
+                modifier = modifier.padding(horizontal = 25.dp, vertical = 5.dp)
+            )
+
+        }
+// Text progress info
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(vertical = 5.dp)
+        ) {
+            if (Book.done == true) {
+                Row(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 5.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(modifier = modifier.padding(vertical = 5.dp)) {
+
+                        Text(
+                            text = "${Book.pages} of ${Book.pages} pages done ",
+                            fontSize = 18.sp,
+                            modifier = modifier.padding(horizontal = 15.dp, )
+                        )
+                        Icon(
+                            painter =
+                            painterResource(id = R.drawable.task_alt_fill0_wght400_grad0_opsz24),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    Text(
+                        text = finishDateString,
+                        fontStyle = FontStyle.Italic,
+                        fontSize = 14.sp,
+                        modifier = modifier.padding(horizontal = 25.dp, vertical = 5.dp)
+
+                    )
+                }
+            } else {
+                LaunchedEffect(key1 = state.book) {
+
+                    if (Book.currentPage != 0) {
+                        progress = ((Book.currentPage.toFloat()) / Book.pages.toFloat())
+                    }
+                }
+                val progressAnimation by animateFloatAsState(
+                    targetValue = progress,
+                    animationSpec = tween(durationMillis = 1500, easing = FastOutSlowInEasing),
+                    label = ""
+                )
+                LinearProgressIndicator(
+                    progress = progressAnimation,
+                    modifier = Modifier
+                        .fillMaxWidth(0.5f)
+                        .padding(horizontal = 15.dp, vertical = 5.dp)
+                        .animateContentSize(),
+                )
+                Text(text = "${state.book.currentPage} of ${Book.pages} pages", fontSize = 13.sp)
+
+
+            }
+        }
+
+        //change current page
+        var currentPageText by remember { mutableStateOf(state.book.currentPage.toString()) }
+
+        OutlinedTextField(
+            value = currentPageText,
+            onValueChange = {
+                try {
+                    currentPageText = it
                     onPageChange(it.toInt())
                 } catch (e: Exception) {
                     Log.e("ERROR", e.message.toString())
                 }
-            }, modifier = modifier
+            },
+            modifier = modifier
                 .padding(10.dp)
-                .width(90.dp)
-
+                .width(200.dp),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            label = { Text(text = "current page") },
+            singleLine = true,
+            trailingIcon = {
+                if (currentPageText.isNotEmpty()) {
+                    IconButton(
+                        onClick = { currentPageText = "" }
+                    ) {
+                        Icon(
+                            Icons.Filled.Clear,
+                            contentDescription = "Clear",
+                            modifier = modifier.size(10.dp)
+                        )
+                    }
+                }
+            }
         )
 
+//            OutlinedTextField(
+//                value = state.book.currentPage.toString(), onValueChange = {
+//                    try {
+//
+//                        onPageChange(it.toInt())
+//                    } catch (e: Exception) {
+//                        Log.e("ERROR", e.message.toString())
+//                    }
+//                }, modifier = modifier
+//                    .padding(10.dp)
+//                    .width(90.dp),
+//                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+//                label = { Text(text = "current page") }
+//
+//            )
 
     }
-
-
 }
 

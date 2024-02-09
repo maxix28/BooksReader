@@ -3,6 +3,9 @@ package com.example.books.database
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.sql.Time
+import java.time.LocalDateTime
+import java.util.Date
 
 @Entity(tableName = "MyBooks")
 data class Book(
@@ -15,5 +18,9 @@ data class Book(
     var currentPage:Int = 0,
     var done:Boolean= false,
     @ColumnInfo( typeAffinity = ColumnInfo.BLOB)
-    var ImageStr: ByteArray? = null
-)
+    var ImageStr: ByteArray? = null,
+    val startDate: Date = Date(System.currentTimeMillis()),
+    //var startDate: LocalDateTime,
+    var FinishDate:Date? = null,
+
+    )

@@ -13,11 +13,10 @@ import com.example.books.data.BookRepository
 import com.example.books.database.Book
 import com.example.books.ui.navigation.NavDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+
+import java.util.Date
 import javax.inject.Inject
 
 sealed interface BookDetailUIState {
@@ -38,7 +37,6 @@ class BookDetailViewModel @Inject constructor(
     suspend fun deleteBook() {
         bookRepository.DeleteBook((UIState as BookDetailUIState.Success).book)
 
-        println("DEEElete")
     }
 
     var UIState: BookDetailUIState by mutableStateOf(BookDetailUIState.Loading)
@@ -58,27 +56,21 @@ class BookDetailViewModel @Inject constructor(
         }
 
     }
-//fun setPage(it :Int){
-//val currentState = UIState as BookDetailUIState.Success
-//    (UIState as BookDetailUIState.Success ).book=currentState.book.copy(currentPage = it)
-//    println( (UIState as BookDetailUIState.Success ).book.currentPage)
-//}
 
 
     fun setPage(newPage: Int) {
         if (UIState is BookDetailUIState.Success) {
             val currentState = UIState as BookDetailUIState.Success
-            var updatedBook = currentState.book.copy(currentPage = newPage)
-            if(newPage>= currentState.book.pages){
 
-                updatedBook = currentState.book.copy(currentPage = newPage, done = true)
-
+            val  updatedBook = if (newPage >= currentState.book.pages) {
+                currentState.book.copy(
+                    currentPage = newPage,
+                    done = true,
+                    FinishDate = Date(System.currentTimeMillis())
+                )
+            } else {
+                currentState.book.copy(currentPage = newPage, done = false)
             }
-            else{
-                updatedBook = currentState.book.copy(currentPage = newPage, done = false)
-            }
-
-
             UIState = currentState.copy(book = updatedBook)
         }
     }
@@ -92,7 +84,7 @@ class BookDetailViewModel @Inject constructor(
                     val updatedState =
                         currentState.copy(book = currentState.book.copy(ImageStr = it))
                     UIState = updatedState
-                    println(UIState)
+                   // println(UIState)
                 }
             }
         } catch (e: Exception) {
@@ -101,24 +93,6 @@ class BookDetailViewModel @Inject constructor(
     }
 
 
-    //    fun setPhoto(it: Uri) {
-//        var curentUI = UIState
-//        // UIState = curentUI.copy(ImageStr = it)
-//        try {
-//            if (UIState is BookDetailUIState.Success) {
-//
-//                val newImage = app.contentResolver.openInputStream(it)?.readBytes()
-//                newImage?.let {
-//                    UIState = curentUI.copy(ImageStr = it)
-//                    println(UIState)
-//
-//                }
-//            }
-//        }catch (e:Exception){
-//            e.printStackTrace()
-//        }
-//
-//    }
     suspend fun UpdateBook() =
         bookRepository.UpdateBook((UIState as BookDetailUIState.Success).book)
 

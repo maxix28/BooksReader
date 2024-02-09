@@ -5,7 +5,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.util.Log
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -16,7 +17,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import java.io.ByteArrayOutputStream
 import java.io.FileInputStream
 import java.io.IOException
-import java.util.UUID
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 data class AddUiState(
@@ -26,7 +27,8 @@ data class AddUiState(
     var pages: String = "",
     var ImageStr: ByteArray? = null
 ) {
-    fun toBook(): Book = Book(name = name, author =  author, expectation =  expectation, pages = pages.toInt(), ImageStr = ImageStr)
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun toBook(): Book = Book(name = name, author =  author, expectation =  expectation, pages = pages.toInt(), ImageStr = ImageStr, )
 }
 
 object ImageUtils {
@@ -133,6 +135,7 @@ private fun compressImage(uri: Uri): ByteArray? {
 }
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun AddBook()= bookRepository.AddBook(UIState.toBook())
 
     private fun getImageBytesFromUri(uri: Uri): ByteArray {

@@ -1,7 +1,6 @@
 package com.example.books.ui.screens
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,16 +10,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,6 +38,8 @@ import com.example.books.R
 import com.example.books.ui.navigation.Destination
 import com.example.books.ui.navigation.NavDestination
 import com.example.books.ui.navigation.NavGraph
+import com.example.compose.md_theme_light_primaryContainer
+import okhttp3.Route
 
 @Composable
 fun mainScreen(modifier: Modifier = Modifier) {
@@ -119,9 +126,27 @@ fun RowScope.AddItem(
 //        modifier = modifier.background(Color.Transparent),)
 
     IconButton(onClick = { navController.navigate(screen.route) }) {
+
         Icon(painter = painterResource(id = screen.icon),
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary)
+            tint = colorScheme.primary,
+            modifier = modifier
+//                .background(if (currentDestination?.hierarchy?.any {
+//                        it.route == screen.route
+//                    } == true) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
+                .padding(5.dp)
+//                .clip(
+//                    androidx.compose.foundation.shape.CircleShape()
+//                )
+                .drawBehind {
+
+                    drawCircle(
+                        color = (if (currentDestination?.hierarchy?.any { it.route == screen.route } == true) {
+                         md_theme_light_primaryContainer
+                        } else Color.Transparent),
+                        radius = (this.size.maxDimension/3)*2
+                    )
+                })
     }
 
 }

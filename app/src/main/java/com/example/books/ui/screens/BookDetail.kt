@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -24,9 +25,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
+
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedTextField
@@ -41,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 
 import androidx.compose.ui.layout.ContentScale
 
@@ -119,6 +119,10 @@ fun BookSuccess(
     var selectedImageUri by remember {
         mutableStateOf<Uri?>(null)
     }
+    val angle: Float by animateFloatAsState(
+        targetValue = 360F,
+        animationSpec = infiniteRepeatable(
+            tween(2000)))
 
     val singlePhotoPicker =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia(),
@@ -157,10 +161,13 @@ fun BookSuccess(
                 //Icon(Icons.Default.ArrowBack)
                 androidx.compose.material3.Icon(
                     painter = painterResource(id = R.drawable.delete_fill0_wght400_grad0_opsz24),
-                    contentDescription = null
+                    contentDescription = null,
                 )
             }
 
+        }
+        var rotate by remember {
+            mutableStateOf(0f)
         }
 
         Row(
@@ -179,7 +186,10 @@ fun BookSuccess(
                         .clip(
                             RoundedCornerShape(10)
                         )
-                        .fillMaxWidth(),
+                        .rotate(rotate)
+                        .clickable { rotate += 90f }
+
+                      ,
                     alignment = Alignment.Center,
 
                     )
@@ -238,7 +248,9 @@ fun BookSuccess(
                 } catch (e: Exception) {
                     Log.e("ERROR", e.message.toString())
                 }
-            }, modifier = modifier.padding(10.dp).width(90.dp)
+            }, modifier = modifier
+                .padding(10.dp)
+                .width(90.dp)
 
         )
 

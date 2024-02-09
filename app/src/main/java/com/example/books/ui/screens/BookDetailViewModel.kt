@@ -68,7 +68,17 @@ class BookDetailViewModel @Inject constructor(
     fun setPage(newPage: Int) {
         if (UIState is BookDetailUIState.Success) {
             val currentState = UIState as BookDetailUIState.Success
-            val updatedBook = currentState.book.copy(currentPage = newPage)
+            var updatedBook = currentState.book.copy(currentPage = newPage)
+            if(newPage>= currentState.book.pages){
+
+                updatedBook = currentState.book.copy(currentPage = newPage, done = true)
+
+            }
+            else{
+                updatedBook = currentState.book.copy(currentPage = newPage, done = false)
+            }
+
+
             UIState = currentState.copy(book = updatedBook)
         }
     }

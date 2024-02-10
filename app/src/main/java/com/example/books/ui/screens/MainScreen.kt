@@ -72,8 +72,13 @@ fun bottomBar(modifier: Modifier = Modifier, navController: NavHostController) {
 
     val navBAckStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBAckStackEntry?.destination
-
+    val isInScreens: Boolean = currentDestination?.let { currentDest ->
+        screens.any { screen -> screen.route == currentDest.route }
+    } ?: false
     // BottomNavigation( modifier = modifier, contentColor = Color.Transparent, elevation = 10.dp) {
+    if (isInScreens) {
+
+
     Row(
         modifier = modifier.padding(horizontal = 5.dp)
             .fillMaxWidth()
@@ -90,6 +95,7 @@ fun bottomBar(modifier: Modifier = Modifier, navController: NavHostController) {
             )
         }
     }
+}
 //    Column {
 //        Divider(modifier = modifier.fillMaxWidth())
 //        Row(

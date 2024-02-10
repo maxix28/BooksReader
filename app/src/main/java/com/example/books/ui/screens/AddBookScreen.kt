@@ -175,5 +175,5 @@ fun AddBook(
 @Preview(showBackground = true)
 @Composable
 fun prev() {
-    AddBook(afterdAdd = {})
+   // AddBook(afterdAdd = {})
 }

@@ -146,7 +146,7 @@ fun BookSuccess(
     }
     val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
     val startDateString = dateFormat.format(Book.startDate)
-    val finishDateString = dateFormat.format(Book.FinishDate)
+    val finishDateString = dateFormat.format( Book.FinishDate?: Book.startDate )
     Column(modifier = modifier.fillMaxSize()) {
         Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             IconButton(onClick = {

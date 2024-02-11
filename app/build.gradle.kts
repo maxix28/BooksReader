@@ -117,6 +117,8 @@ dependencies {
     implementation ("com.loopj.android:android-async-http:1.4.11")
     implementation("org.json:json:20230227")
     implementation("io.coil-kt:coil-compose:2.5.0")
+
+
 }
 kapt {
     correctErrorTypes = true

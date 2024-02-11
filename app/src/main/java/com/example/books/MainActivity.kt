@@ -34,10 +34,10 @@ class MainActivity : ComponentActivity() {
 //                        AddBook()
 //                        BookList()
 //                    }
-                  // mainScreen()
+                  mainScreen()
                 //             AddBook()
 
-                    SearchBook()
+
                 }
             }
         }

@@ -293,6 +293,14 @@ constructor(private val bookRepository: BookRepository, private val app:Applicat
         viewModelScope.launch {
             getBookApi()
         }
+        if (bookFromApi.author != null) {
+             setAuthor(bookFromApi.author.toString())
+        }
+        if (bookFromApi.name != null) {
+         setName(bookFromApi.name.toString())
+        }
+        bookFromApi.name= null
+        bookFromApi.author= null
     }
 
     suspend fun getBookApi() {
@@ -304,7 +312,7 @@ constructor(private val bookRepository: BookRepository, private val app:Applicat
                     responseBody: ByteArray?
                 ) {
                     val result = responseBody?.let { String(it) }
-                    Log.d("BOOK", result.toString())
+                    //Log.d("BOOK", result.toString())
                     try {
                         val jsonObject = JSONObject(result)
                         val itemsArray = jsonObject.getJSONArray("items")

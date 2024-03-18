@@ -64,7 +64,7 @@ fun bottomBar(modifier: Modifier = Modifier, navController: NavHostController) {
 
     val screens = listOf(
         NavDestination.BookList,
-        NavDestination.AddBook,
+        NavDestination.SearchBook,
         NavDestination.UserAccount,
 
 

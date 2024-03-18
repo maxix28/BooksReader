@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.books.ui.screens.AddBook
 import com.example.books.ui.screens.BookList
+import com.example.books.ui.screens.SearchBook
 import com.example.books.ui.screens.mainScreen
 import com.example.books.ui.theme.BooksTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,8 +34,10 @@ class MainActivity : ComponentActivity() {
 //                        AddBook()
 //                        BookList()
 //                    }
-                   mainScreen()
+                  mainScreen()
                 //             AddBook()
+
+
                 }
             }
         }

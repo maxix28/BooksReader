@@ -1,6 +1,8 @@
 package com.example.books.ui.navigation
 
 import android.graphics.drawable.Icon
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
@@ -25,8 +27,10 @@ import androidx.navigation.navArgument
 import com.example.books.ui.screens.AddBook
 import com.example.books.ui.screens.BookDetail
 import com.example.books.ui.screens.BookList
+import com.example.books.ui.screens.SearchBook
 import com.example.books.ui.screens.UserScreen
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(navController = navController, startDestination = NavDestination.BookList.route) {
@@ -53,6 +57,12 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
 
         ) {
             UserScreen()
+        }
+        composable(
+            route = NavDestination.SearchBook.route
+
+        ) {
+            SearchBook(onAddBook = {navController.navigate(NavDestination.AddBook.route)})
         }
 
     }

@@ -49,14 +49,20 @@ import com.example.books.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+object bookFromApi{
+    var author: String? = null
+    var name: String? = null
+}
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AddBook(
     modifier: Modifier = Modifier,
     addViewModel: AddBookViewModel = hiltViewModel<AddBookViewModel>(),
-    afterdAdd:()->Unit
-) {
+    afterdAdd: () -> Unit,
+
+    ) {
 
 
     var selectedImageUri by remember {
@@ -66,10 +72,10 @@ fun AddBook(
     val singlePhotoPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
-            try{
+            try {
                 selectedImageUri = uri
                 addViewModel.setPhoto(uri!!)
-            }catch (e:Exception){
+            } catch (e: Exception) {
                 println("Image problem")
             }
 
@@ -85,32 +91,39 @@ fun AddBook(
         horizontalAlignment = Alignment.CenterHorizontally
 
     ) {
-        IconButton(onClick = {
+        IconButton(
+            onClick = {
 
                 singlePhotoPicker.launch(
                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                 )
 
 
-        }, modifier = modifier.size(150.dp).background(Color.Transparent), ) {
-            Column (){
-                if(selectedImageUri== null) {
+            },
+            modifier = modifier
+                .size(150.dp)
+                .background(Color.Transparent),
+        ) {
+            Column() {
+                if (selectedImageUri == null) {
                     Icon(
                         painter = painterResource(id = R.drawable.image_fill0_wght400_grad0_opsz24),
-                        contentDescription = null, modifier = modifier.size(90.dp), tint = MaterialTheme.colorScheme.primary
+                        contentDescription = null,
+                        modifier = modifier.size(90.dp),
+                        tint = MaterialTheme.colorScheme.primary
                     )
                     Text(text = "Add book photo", fontSize = 10.sp)
-                }
-                else{
+                } else {
                     AsyncImage(
-                       model = selectedImageUri,contentDescription = null)
+                        model = selectedImageUri, contentDescription = null
+                    )
                 }
             }
 
         }
 
 
-        Column (verticalArrangement = Arrangement.Center){
+        Column(verticalArrangement = Arrangement.Center) {
             OutlinedTextField(
                 value = addViewModel.UIState.name,
                 onValueChange = { addViewModel.setName(it) },
@@ -161,10 +174,12 @@ fun AddBook(
             },
             modifier = modifier
                 //    .background(MaterialTheme.colorScheme.primary)
-                .clip(RoundedCornerShape(15.dp)).height(50.dp)
+                .clip(RoundedCornerShape(15.dp))
+                .height(50.dp)
 
         ) {
-            Text("Start reading", //modifier = modifier.padding(10.dp)
+            Text(
+                "Start reading", //modifier = modifier.padding(10.dp)
             )
         }
     }
@@ -172,8 +187,8 @@ fun AddBook(
 
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun prev() {
-//    AddBook(afterdAdd = {})
-//}
+@Preview(showBackground = true)
+@Composable
+fun prev() {
+    // AddBook(afterdAdd = {})
+}

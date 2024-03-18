@@ -19,12 +19,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -86,7 +89,7 @@ fun AddBook(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(colorScheme.background),
         verticalArrangement = Arrangement.SpaceAround,
         horizontalAlignment = Alignment.CenterHorizontally
 
@@ -110,7 +113,7 @@ fun AddBook(
                         painter = painterResource(id = R.drawable.image_fill0_wght400_grad0_opsz24),
                         contentDescription = null,
                         modifier = modifier.size(90.dp),
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = colorScheme.primary
                     )
                     Text(text = "Add book photo", fontSize = 10.sp)
                 } else {
@@ -123,7 +126,7 @@ fun AddBook(
         }
 
 
-        Column(verticalArrangement = Arrangement.Center) {
+        Column(verticalArrangement = Arrangement.Center, modifier = modifier.padding(horizontal = 60.dp)) {
             OutlinedTextField(
                 value = addViewModel.UIState.name,
                 onValueChange = { addViewModel.setName(it) },
@@ -160,6 +163,7 @@ fun AddBook(
         }
 
         Button(
+            enabled =!addViewModel.UIState.pages.isEmpty() ,
             onClick = {
                 coroutineScope.launch {
                     withContext(Dispatchers.IO) {

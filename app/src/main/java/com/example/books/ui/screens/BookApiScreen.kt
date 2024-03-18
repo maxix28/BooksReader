@@ -46,7 +46,7 @@ import com.example.books.R
 import com.example.compose.md_theme_light_primaryContainer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-
+import com.example.books.ui.screens.*
 @Composable
 fun SearchBook(
     modifier: Modifier = Modifier,
@@ -79,7 +79,7 @@ fun SearchBook(
 
             IconButton(onClick = onAddBook) {
 
-                Icon(painter = painterResource(id = R.drawable.edit_square_fill0_wght400_grad0_opsz24),
+                Icon(painter = painterResource(id = R.drawable.add_box_fill0_wght400_grad0_opsz24),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = modifier

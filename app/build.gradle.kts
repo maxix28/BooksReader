@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.books"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -118,7 +118,8 @@ dependencies {
     implementation("org.json:json:20230227")
     implementation("io.coil-kt:coil-compose:2.5.0")
 
-
+//
+    implementation ("com.google.code.gson:gson:2.10")
 }
 kapt {
     correctErrorTypes = true

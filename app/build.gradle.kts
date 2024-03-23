@@ -120,6 +120,9 @@ dependencies {
 
 //
     implementation ("com.google.code.gson:gson:2.10")
+
+
+    implementation ("com.google.android.material:material:1.11.0")
 }
 kapt {
     correctErrorTypes = true

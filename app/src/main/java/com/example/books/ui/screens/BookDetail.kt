@@ -1,5 +1,6 @@
 package com.example.books.ui.screens
 
+import android.app.AlertDialog
 import android.graphics.drawable.Icon
 import android.net.Uri
 import android.util.Log
@@ -13,8 +14,10 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -55,9 +58,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.HorizontalAlignmentLine
+import androidx.compose.ui.platform.LocalContext
 
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
@@ -70,6 +75,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.books.R
 import com.example.books.database.Quotes
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -374,8 +380,7 @@ fun BookSuccess(
                 },
                 modifier = modifier
                     .padding(10.dp)
-                    .width(200.dp)
-                   ,
+                    .width(200.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 label = { Text(text = "current page") },
                 singleLine = true,
@@ -417,7 +422,7 @@ fun BookSuccess(
 
         }
         Text(text = formattedTime, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-        CommentsFragment(state,onAddQoute = onAddQoute)
+        CommentsFragment(state, onAddQoute = onAddQoute)
 
 
     }
@@ -471,7 +476,8 @@ fun BackgroundTimer(
 
 
 @Composable
-fun CommentsFragment(    state: BookDetailUIState.Success,
+fun CommentsFragment(
+    state: BookDetailUIState.Success,
     modifier: Modifier = Modifier,
     onAddQoute: (Quotes) -> Unit
 ) {
@@ -487,11 +493,15 @@ fun CommentsFragment(    state: BookDetailUIState.Success,
     }
     var page by rememberSaveable {
         mutableStateOf("")
-
     }
     var Book = state.book
     Column(modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-        Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Absolute.SpaceAround, verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Absolute.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Spacer(modifier = modifier.width(10.dp))
             Text("Quotes", fontWeight = FontWeight.Bold, fontSize = 20.sp)
             IconButton(onClick = {
                 add = !add
@@ -507,6 +517,8 @@ fun CommentsFragment(    state: BookDetailUIState.Success,
                 )
             }
         }
+
+
         if (add) {
 
             OutlinedTextField(
@@ -535,8 +547,8 @@ fun CommentsFragment(    state: BookDetailUIState.Success,
             }
 
         }
-        LazyColumn(){
-            items(Book.Quotes){
+        LazyColumn() {
+            items(Book.Quotes) {
                 Quote(it)
             }
         }
@@ -548,12 +560,16 @@ fun CommentsFragment(    state: BookDetailUIState.Success,
 
 
 @Composable
-fun Quote(quotes: Quotes?,
-          modifier: Modifier = Modifier,){
-    Card(modifier= modifier.padding(10.dp)){
-        Column(modifier= modifier.padding(10.dp).fillMaxWidth()) {
-            Text(text = "\"${quotes?.pages}\"",fontStyle = FontStyle.Italic)
-            Text(text ="page: ${quotes?.pages}" , fontSize = 12.sp, )
+fun Quote(
+    quotes: Quotes?,
+    modifier: Modifier = Modifier,
+) {
+    Card(modifier = modifier.padding(10.dp)) {
+        Column(modifier = modifier
+            .padding(10.dp)
+            .fillMaxWidth()) {
+            Text(text = "\"${quotes?.pages}\"", fontStyle = FontStyle.Italic)
+            Text(text = "page: ${quotes?.pages}", fontSize = 12.sp)
 
         }
 
@@ -567,3 +583,4 @@ fun Quote(quotes: Quotes?,
 fun backprev() {
     //CommentsFragment(onAddQoute = {})
 }
+

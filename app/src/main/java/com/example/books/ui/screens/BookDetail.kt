@@ -1,8 +1,11 @@
 package com.example.books.ui.screens
 
+import android.Manifest
 import android.app.AlertDialog
+import android.content.pm.PackageManager
 
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
 
@@ -74,6 +77,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.books.R
@@ -205,6 +209,24 @@ fun BookSuccess(
     onDelete: () -> Unit,
     NavigateBack: () -> Unit
 ) {
+    val context = LocalContext.current
+    var hasNotificationPermissions by remember{
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+        {
+            mutableStateOf(
+                ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
+                    PackageManager.PERMISSION_GRANTED)
+        }
+        else mutableStateOf(true)
+
+    }
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = {isGranted->
+            hasNotificationPermissions = isGranted
+
+        }
+    )
     val dateFormatter = SimpleDateFormat("yyyy-MM-dd")
     val calendar = Calendar.getInstance()
     var datePickerState = rememberDatePickerState()
@@ -215,7 +237,7 @@ fun BookSuccess(
         initialMinute = calendar.get(Calendar.MINUTE),
     )
     var showTimePicker by remember { mutableStateOf(false) }
-    val context = LocalContext.current
+
     var selectedImageUri by remember {
         mutableStateOf<Uri?>(null)
     }
@@ -253,14 +275,14 @@ fun BookSuccess(
 
                         val selectedDate = Calendar.getInstance().apply {
                             // Set the date from datePickerState
-                            timeInMillis = datePickerState.selectedDateMillis!!
+                            timeInMillis = datePickerState.selectedDateMillis?: System.currentTimeMillis()
                             // Reset time fields to 00:00:00
                             set(Calendar.HOUR_OF_DAY, 0)
                             set(Calendar.MINUTE, 0)
                             set(Calendar.SECOND, 0)
                             set(Calendar.MILLISECOND, 0)
                         }
-                    //    if (selectedDate >= Calendar.getInstance()) {
+
                             Toast.makeText(
                                 context,
                                 "Selected date ${dateFormatter.format(selectedDate.time)} saved",
@@ -268,13 +290,7 @@ fun BookSuccess(
                             ).show()
                             showDatePicker = false
                             showTimePicker = true
-//                        } else {
-//                            Toast.makeText(
-//                                context,
-//                                "Selected date should be after today, please select again",
-//                                Toast.LENGTH_SHORT
-//                            ).show()
-                     //  }
+
                     }
                 ) { Text("OK") }
             },
@@ -304,9 +320,9 @@ fun BookSuccess(
                             LocalDateTime.ofInstant(selectedDate, ZoneOffset.UTC).toLocalDate()
 
                         val year = localDate.year
-                        val month = localDate.monthValue // Month value starts from 1 (January)
+                        val month = localDate.monthValue
                         val day = localDate.dayOfMonth
-                        // Retrieve the selected time from timePickerState
+
                         val selectedTime = Calendar.getInstance().apply {
                             set(Calendar.HOUR_OF_DAY, timePickerState.hour)
                             set(Calendar.MINUTE, timePickerState.minute)
@@ -341,6 +357,7 @@ fun BookSuccess(
                                 book = Book
                             )
                             reminderItem?.let { scheduler.schedule(it) }
+                            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                             // Dismiss the TimePickerDialog
                             showTimePicker = false
                         } else {
@@ -403,10 +420,9 @@ fun BookSuccess(
 
 
                 }) {
-                    //Icon(Icons.Default.ArrowBack)
-                    androidx.compose.material3.Icon(
+              Icon(
                         painter = painterResource(id = R.drawable.delete_fill0_wght400_grad0_opsz24),
-                        contentDescription = null,
+                        contentDescription = null,     modifier = modifier.size(30.dp)
                     )
                 }
             }

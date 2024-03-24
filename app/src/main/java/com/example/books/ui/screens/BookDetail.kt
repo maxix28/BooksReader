@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.drawable.Icon
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -84,6 +85,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.util.Calendar
 import java.util.Locale
 
 @Composable
@@ -201,11 +206,15 @@ fun BookSuccess(
     onDelete: () -> Unit,
     NavigateBack: () -> Unit
 ) {
-
+    val dateFormatter = SimpleDateFormat("yyyy-MM-dd")
+    val calendar = Calendar.getInstance()
     var datePickerState = rememberDatePickerState()
     var showDatePicker by remember { mutableStateOf(false) }
 
-    var timePickerState = rememberTimePickerState()
+    var timePickerState = rememberTimePickerState(
+        initialHour = calendar.get(Calendar.HOUR_OF_DAY),
+        initialMinute =calendar.get(Calendar.MINUTE),
+    )
     var showTimePicker by remember { mutableStateOf(false) }
     val context = LocalContext.current
     var selectedImageUri by remember {
@@ -236,11 +245,33 @@ fun BookSuccess(
         DatePickerDialog(
             onDismissRequest = { /*TODO*/ },
             confirmButton = {
-
                 TextButton(
                     onClick = {
-                        showTimePicker = true
-                        showDatePicker = false
+
+                        val selectedDate = Calendar.getInstance().apply {
+                            // Set the date from datePickerState
+                            timeInMillis = datePickerState.selectedDateMillis!!
+                            // Reset time fields to 00:00:00
+                            set(Calendar.HOUR_OF_DAY, 0)
+                            set(Calendar.MINUTE, 0)
+                            set(Calendar.SECOND, 0)
+                            set(Calendar.MILLISECOND, 0)
+                        }
+                        if (selectedDate.after(Calendar.getInstance())) {
+                            Toast.makeText(
+                                context,
+                                "Selected date ${dateFormatter.format(selectedDate.time)} saved",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            showDatePicker = false
+                            showTimePicker = true
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Selected date should be after today, please select again",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                 ) { Text("OK") }
             },
@@ -263,7 +294,44 @@ fun BookSuccess(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        showTimePicker = false
+                        val selectedDateMillis = datePickerState.selectedDateMillis ?: System.currentTimeMillis()
+                        val selectedDate = Instant.ofEpochMilli(selectedDateMillis)
+                        val localDate = LocalDateTime.ofInstant(selectedDate, ZoneOffset.UTC).toLocalDate()
+
+                        val year = localDate.year
+                        val month = localDate.monthValue // Month value starts from 1 (January)
+                        val day = localDate.dayOfMonth
+                        // Retrieve the selected time from timePickerState
+                        val selectedTime = Calendar.getInstance().apply {
+                            set(Calendar.HOUR_OF_DAY, timePickerState.hour)
+                            set(Calendar.MINUTE, timePickerState.minute)
+                            // Reset date fields to today's date
+                            set(Calendar.YEAR,year)
+                            set(Calendar.MONTH, month)
+                            set(Calendar.DAY_OF_MONTH, day)
+                        }
+
+
+                        // Validate if the selected time is in the future
+                        if (selectedTime.after(Calendar.getInstance())) {
+                            // Format and display the selected date and time
+                            val formattedDateTime =
+                                SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                                    .format(selectedTime.time)
+                            Toast.makeText(
+                                context,
+                                "Selected date and time: $formattedDateTime",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            // Dismiss the TimePickerDialog
+                            showTimePicker = false
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Selected time should be after the current time, please select again",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                 ) { Text("OK") }
             },

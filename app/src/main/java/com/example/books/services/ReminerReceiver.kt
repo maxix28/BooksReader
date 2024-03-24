@@ -8,5 +8,7 @@ class ReminerReceiver:BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         val message = intent?.getStringExtra("MESSAGE")?:return
         println(message)
+        val service = AlarmNotificationService(context!!)
+        service.showNotification(message)
     }
 }

@@ -1,5 +1,8 @@
 package com.example.books.ui.screens
 
+import android.app.AlertDialog
+import android.app.TimePickerDialog
+import android.graphics.Color
 import android.graphics.drawable.Icon
 import android.net.Uri
 import android.util.Log
@@ -13,12 +16,16 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -28,13 +35,22 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.Button
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -48,16 +64,22 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.books.R
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -115,6 +137,61 @@ fun BookDetail(
     }
 }
 
+
+@Composable
+fun TimePickerDialog(
+    title: String = "Select Time",
+    onDismissRequest: () -> Unit,
+    confirmButton: @Composable (() -> Unit),
+    dismissButton: @Composable (() -> Unit)? = null,
+    containerColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.surface,
+    content: @Composable () -> Unit,
+) {
+    Dialog(
+        onDismissRequest = onDismissRequest,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false
+        ),
+    ) {
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+            tonalElevation = 6.dp,
+            modifier = Modifier
+                .width(IntrinsicSize.Min)
+                .height(IntrinsicSize.Min)
+                .background(
+                    shape = MaterialTheme.shapes.extraLarge,
+                    color = containerColor
+                ),
+            color = containerColor
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 20.dp),
+                    text = title,
+                    style = MaterialTheme.typography.labelMedium
+                )
+                content()
+                Row(
+                    modifier = Modifier
+                        .height(40.dp)
+                        .fillMaxWidth()
+                ) {
+                    Spacer(modifier = Modifier.weight(1f))
+                    dismissButton?.invoke()
+                    confirmButton()
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookSuccess(
     state: BookDetailUIState.Success,
@@ -124,6 +201,13 @@ fun BookSuccess(
     onDelete: () -> Unit,
     NavigateBack: () -> Unit
 ) {
+
+    var datePickerState = rememberDatePickerState()
+    var showDatePicker by remember { mutableStateOf(false) }
+
+    var timePickerState = rememberTimePickerState()
+    var showTimePicker by remember { mutableStateOf(false) }
+    val context = LocalContext.current
     var selectedImageUri by remember {
         mutableStateOf<Uri?>(null)
     }
@@ -146,7 +230,55 @@ fun BookSuccess(
     }
     val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
     val startDateString = dateFormat.format(Book.startDate)
-    val finishDateString = dateFormat.format(Book.FinishDate?:Book.startDate)
+    val finishDateString = dateFormat.format(Book.FinishDate ?: Book.startDate)
+    // date picker component
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { /*TODO*/ },
+            confirmButton = {
+
+                TextButton(
+                    onClick = {
+                        showTimePicker = true
+                        showDatePicker = false
+                    }
+                ) { Text("OK") }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showDatePicker = false
+                    }
+                ) { Text("Cancel") }
+            }
+        )
+        {
+            DatePicker(state = datePickerState)
+        }
+    }
+
+    if (showTimePicker) {
+        TimePickerDialog(
+            onDismissRequest = { /*TODO*/ },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showTimePicker = false
+                    }
+                ) { Text("OK") }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showTimePicker = false
+                    }
+                ) { Text("Cancel") }
+            }
+        )
+        {
+            TimePicker(state = timePickerState)
+        }
+    }
     Column(modifier = modifier.fillMaxSize()) {
         Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             IconButton(onClick = {
@@ -157,18 +289,46 @@ fun BookSuccess(
                     imageVector = Icons.Default.ArrowBack, contentDescription = null
                 )
             }
-            IconButton(onClick = {
-                onDelete()
-                NavigateBack()
-            }) {
-                //Icon(Icons.Default.ArrowBack)
-                androidx.compose.material3.Icon(
-                    painter = painterResource(id = R.drawable.delete_fill0_wght400_grad0_opsz24),
-                    contentDescription = null,
-                )
+            Row() {
+                IconButton(onClick = {
+                    showDatePicker = true
+                   // showTimePicker = true
+
+                }) {
+                    //Icon(Icons.Default.ArrowBack)
+                    androidx.compose.material3.Icon(
+                        painter = painterResource(id = R.drawable.reminder_add),
+                        contentDescription = null,
+                        modifier = modifier.size(35.dp)
+                    )
+
+                }
+                IconButton(onClick = {
+                    val question = AlertDialog.Builder(context)
+                        .setTitle("Delete ${Book.name}?")
+                        .setPositiveButton("Yes") { d, w ->
+                            onDelete()
+                            NavigateBack()
+                        }
+                        .setNegativeButton("No") { d, w ->
+
+                        }
+                        .show()
+
+
+                }) {
+                    //Icon(Icons.Default.ArrowBack)
+                    androidx.compose.material3.Icon(
+                        painter = painterResource(id = R.drawable.delete_fill0_wght400_grad0_opsz24),
+                        contentDescription = null,
+                    )
+                }
             }
 
+
         }
+
+        //Image
         var rotate by remember {
             mutableStateOf(0f)
         }
@@ -257,7 +417,7 @@ fun BookSuccess(
                         Text(
                             text = "${Book.pages} of ${Book.pages} pages done ",
                             fontSize = 18.sp,
-                            modifier = modifier.padding(horizontal = 15.dp, )
+                            modifier = modifier.padding(horizontal = 15.dp)
                         )
                         Icon(
                             painter =
@@ -333,22 +493,5 @@ fun BookSuccess(
             }
         )
 
-//            OutlinedTextField(
-//                value = state.book.currentPage.toString(), onValueChange = {
-//                    try {
-//
-//                        onPageChange(it.toInt())
-//                    } catch (e: Exception) {
-//                        Log.e("ERROR", e.message.toString())
-//                    }
-//                }, modifier = modifier
-//                    .padding(10.dp)
-//                    .width(90.dp),
-//                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-//                label = { Text(text = "current page") }
-//
-//            )
-
     }
 }
-

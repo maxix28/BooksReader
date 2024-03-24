@@ -1,9 +1,7 @@
 package com.example.books.ui.screens
 
 import android.app.AlertDialog
-import android.app.TimePickerDialog
-import android.graphics.Color
-import android.graphics.drawable.Icon
+
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
@@ -14,7 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
+
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -30,13 +28,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
+
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material3.Button
+
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -71,7 +69,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
+
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -79,8 +77,9 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.books.R
-import com.google.android.material.timepicker.MaterialTimePicker
-import com.google.android.material.timepicker.TimeFormat
+import com.example.books.services.ReminderItem
+import com.example.books.services.ReminderSchedulerImplement
+
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -213,7 +212,7 @@ fun BookSuccess(
 
     var timePickerState = rememberTimePickerState(
         initialHour = calendar.get(Calendar.HOUR_OF_DAY),
-        initialMinute =calendar.get(Calendar.MINUTE),
+        initialMinute = calendar.get(Calendar.MINUTE),
     )
     var showTimePicker by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -240,6 +239,10 @@ fun BookSuccess(
     val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
     val startDateString = dateFormat.format(Book.startDate)
     val finishDateString = dateFormat.format(Book.FinishDate ?: Book.startDate)
+
+
+    val scheduler = ReminderSchedulerImplement(context)
+    var reminderItem: ReminderItem? = null
     // date picker component
     if (showDatePicker) {
         DatePickerDialog(
@@ -257,7 +260,7 @@ fun BookSuccess(
                             set(Calendar.SECOND, 0)
                             set(Calendar.MILLISECOND, 0)
                         }
-                        if (selectedDate.after(Calendar.getInstance())) {
+                    //    if (selectedDate >= Calendar.getInstance()) {
                             Toast.makeText(
                                 context,
                                 "Selected date ${dateFormatter.format(selectedDate.time)} saved",
@@ -265,13 +268,13 @@ fun BookSuccess(
                             ).show()
                             showDatePicker = false
                             showTimePicker = true
-                        } else {
-                            Toast.makeText(
-                                context,
-                                "Selected date should be after today, please select again",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+//                        } else {
+//                            Toast.makeText(
+//                                context,
+//                                "Selected date should be after today, please select again",
+//                                Toast.LENGTH_SHORT
+//                            ).show()
+                     //  }
                     }
                 ) { Text("OK") }
             },
@@ -294,9 +297,11 @@ fun BookSuccess(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        val selectedDateMillis = datePickerState.selectedDateMillis ?: System.currentTimeMillis()
+                        val selectedDateMillis =
+                            datePickerState.selectedDateMillis ?: System.currentTimeMillis()
                         val selectedDate = Instant.ofEpochMilli(selectedDateMillis)
-                        val localDate = LocalDateTime.ofInstant(selectedDate, ZoneOffset.UTC).toLocalDate()
+                        val localDate =
+                            LocalDateTime.ofInstant(selectedDate, ZoneOffset.UTC).toLocalDate()
 
                         val year = localDate.year
                         val month = localDate.monthValue // Month value starts from 1 (January)
@@ -306,7 +311,7 @@ fun BookSuccess(
                             set(Calendar.HOUR_OF_DAY, timePickerState.hour)
                             set(Calendar.MINUTE, timePickerState.minute)
                             // Reset date fields to today's date
-                            set(Calendar.YEAR,year)
+                            set(Calendar.YEAR, year)
                             set(Calendar.MONTH, month)
                             set(Calendar.DAY_OF_MONTH, day)
                         }
@@ -323,6 +328,19 @@ fun BookSuccess(
                                 "Selected date and time: $formattedDateTime",
                                 Toast.LENGTH_SHORT
                             ).show()
+                            val localDateTime = LocalDateTime.of(
+                                year,
+                                month,
+                                day,
+                                timePickerState.hour,
+                                timePickerState.minute
+                            )
+
+                            reminderItem = ReminderItem(
+                                localDateTime,
+                                book = Book
+                            )
+                            reminderItem?.let { scheduler.schedule(it) }
                             // Dismiss the TimePickerDialog
                             showTimePicker = false
                         } else {
@@ -353,21 +371,21 @@ fun BookSuccess(
 
                 NavigateBack()
             }) {
-                androidx.compose.material3.Icon(
+               Icon(
                     imageVector = Icons.Default.ArrowBack, contentDescription = null
                 )
             }
             Row() {
                 IconButton(onClick = {
                     showDatePicker = true
-                   // showTimePicker = true
+
 
                 }) {
                     //Icon(Icons.Default.ArrowBack)
                     androidx.compose.material3.Icon(
                         painter = painterResource(id = R.drawable.reminder_add),
                         contentDescription = null,
-                        modifier = modifier.size(35.dp)
+                        modifier = modifier.size(30.dp)
                     )
 
                 }
@@ -527,7 +545,7 @@ fun BookSuccess(
             }
         }
 
-        //change current page
+
         var currentPageText by remember { mutableStateOf(state.book.currentPage.toString()) }
 
         OutlinedTextField(

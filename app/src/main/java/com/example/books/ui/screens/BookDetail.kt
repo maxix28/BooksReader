@@ -1,9 +1,13 @@
 package com.example.books.ui.screens
 
+import android.Manifest.permission.POST_NOTIFICATIONS
 import android.app.AlertDialog
+import android.content.pm.PackageManager
 import android.graphics.drawable.Icon
 import android.net.Uri
+import android.os.Build
 import android.util.Log
+import android.widget.Toast
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -19,6 +23,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,13 +43,21 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -71,20 +84,30 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.books.R
 import com.example.books.database.Quotes
+import com.example.books.services.ReminderItem
+import com.example.books.services.ReminderSchedulerImplement
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.Timer
 import java.util.TimerTask
+import java.util.jar.Manifest
 
 @Composable
 fun BookDetail(
@@ -155,6 +178,60 @@ fun BookDetail(
 }
 
 @Composable
+fun TimePickerDialog(
+    title: String = "Select Time",
+    onDismissRequest: () -> Unit,
+    confirmButton: @Composable (() -> Unit),
+    dismissButton: @Composable (() -> Unit)? = null,
+    containerColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.surface,
+    content: @Composable () -> Unit,
+) {
+    Dialog(
+        onDismissRequest = onDismissRequest,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false
+        ),
+    ) {
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+            tonalElevation = 6.dp,
+            modifier = Modifier
+                .width(IntrinsicSize.Min)
+                .height(IntrinsicSize.Min)
+                .background(
+                    shape = MaterialTheme.shapes.extraLarge,
+                    color = containerColor
+                ),
+            color = containerColor
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 20.dp),
+                    text = title,
+                    style = MaterialTheme.typography.labelMedium
+                )
+                content()
+                Row(
+                    modifier = Modifier
+                        .height(40.dp)
+                        .fillMaxWidth()
+                ) {
+                    Spacer(modifier = Modifier.weight(1f))
+                    dismissButton?.invoke()
+                    confirmButton()
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 fun BookSuccess(
     state: BookDetailUIState.Success,
     modifier: Modifier = Modifier,
@@ -165,6 +242,35 @@ fun BookSuccess(
     onTimeChange: (Long) -> Unit,
     onAddQoute: (Quotes) -> Unit
 ) {
+    val context = LocalContext.current
+    var hasNotificationPermissions by remember{
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+        {
+            mutableStateOf(
+                ContextCompat.checkSelfPermission(context, POST_NOTIFICATIONS) ==
+                        PackageManager.PERMISSION_GRANTED)
+        }
+        else mutableStateOf(true)
+
+    }
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = {isGranted->
+            hasNotificationPermissions = isGranted
+
+        }
+    )
+    val dateFormatter = SimpleDateFormat("yyyy-MM-dd")
+    val calendar = Calendar.getInstance()
+    var datePickerState = rememberDatePickerState()
+    var showDatePicker by remember { mutableStateOf(false) }
+
+    var timePickerState = rememberTimePickerState(
+        initialHour = calendar.get(Calendar.HOUR_OF_DAY),
+        initialMinute = calendar.get(Calendar.MINUTE),
+    )
+    var showTimePicker by remember { mutableStateOf(false) }
+
     var selectedImageUri by remember {
         mutableStateOf<Uri?>(null)
     }
@@ -185,9 +291,136 @@ fun BookSuccess(
     if (Book.currentPage != 0) {
         progress = ((Book.currentPage.toFloat()) / Book.pages.toFloat())
     }
+
+
+
+    if (Book.currentPage != 0) {
+        progress = ((Book.currentPage.toFloat()) / Book.pages.toFloat())
+    }
     val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
     val startDateString = dateFormat.format(Book.startDate)
     val finishDateString = dateFormat.format(Book.FinishDate ?: Book.startDate)
+
+
+    val scheduler = ReminderSchedulerImplement(context)
+    var reminderItem: ReminderItem? = null
+    // date picker component
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { /*TODO*/ },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+
+                        val selectedDate = Calendar.getInstance().apply {
+                            // Set the date from datePickerState
+                            timeInMillis = datePickerState.selectedDateMillis?: System.currentTimeMillis()
+                            // Reset time fields to 00:00:00
+                            set(Calendar.HOUR_OF_DAY, 0)
+                            set(Calendar.MINUTE, 0)
+                            set(Calendar.SECOND, 0)
+                            set(Calendar.MILLISECOND, 0)
+                        }
+
+                        Toast.makeText(
+                            context,
+                            "Selected date ${dateFormatter.format(selectedDate.time)} saved",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        showDatePicker = false
+                        showTimePicker = true
+
+                    }
+                ) { Text("OK") }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showDatePicker = false
+                    }
+                ) { Text("Cancel") }
+            }
+        )
+        {
+            DatePicker(state = datePickerState)
+        }
+    }
+
+    if (showTimePicker) {
+        TimePickerDialog(
+            onDismissRequest = { /*TODO*/ },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val selectedDateMillis =
+                            datePickerState.selectedDateMillis ?: System.currentTimeMillis()
+                        val selectedDate = Instant.ofEpochMilli(selectedDateMillis)
+                        val localDate =
+                            LocalDateTime.ofInstant(selectedDate, ZoneOffset.UTC).toLocalDate()
+
+                        val year = localDate.year
+                        val month = localDate.monthValue
+                        val day = localDate.dayOfMonth
+
+                        val selectedTime = Calendar.getInstance().apply {
+                            set(Calendar.HOUR_OF_DAY, timePickerState.hour)
+                            set(Calendar.MINUTE, timePickerState.minute)
+                            // Reset date fields to today's date
+                            set(Calendar.YEAR, year)
+                            set(Calendar.MONTH, month)
+                            set(Calendar.DAY_OF_MONTH, day)
+                        }
+
+
+                        // Validate if the selected time is in the future
+                        if (selectedTime.after(Calendar.getInstance())) {
+                            // Format and display the selected date and time
+                            val formattedDateTime =
+                                SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                                    .format(selectedTime.time)
+                            Toast.makeText(
+                                context,
+                                "Selected date and time: $formattedDateTime",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            val localDateTime = LocalDateTime.of(
+                                year,
+                                month,
+                                day,
+                                timePickerState.hour,
+                                timePickerState.minute
+                            )
+
+                            reminderItem = ReminderItem(
+                                localDateTime,
+                                book = Book
+                            )
+                            reminderItem?.let { scheduler.schedule(it) }
+                            permissionLauncher.launch(POST_NOTIFICATIONS)
+                            // Dismiss the TimePickerDialog
+                            showTimePicker = false
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Selected time should be after the current time, please select again",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                ) { Text("OK") }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showTimePicker = false
+                    }
+                ) { Text("Cancel") }
+            }
+        )
+        {
+            TimePicker(state = timePickerState)
+        }
+    }
     Column(modifier = modifier.fillMaxSize()) {
         Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             IconButton(onClick = {
@@ -198,9 +431,31 @@ fun BookSuccess(
                     imageVector = Icons.Default.ArrowBack, contentDescription = null
                 )
             }
+            Row() {
             IconButton(onClick = {
-                onDelete()
-                NavigateBack()
+                showDatePicker = true
+
+
+            }) {
+                //Icon(Icons.Default.ArrowBack)
+                androidx.compose.material3.Icon(
+                    painter = painterResource(id = R.drawable.reminder_add),
+                    contentDescription = null,
+                    modifier = modifier.size(30.dp)
+                )
+
+            }
+            IconButton(onClick = {
+                val question = AlertDialog.Builder(context)
+                    .setTitle("Delete ${Book.name}?")
+                    .setPositiveButton("Yes") { d, w ->
+                        onDelete()
+                        NavigateBack()
+                    }
+                    .setNegativeButton("No") { d, w ->
+
+                    }
+                    .show()
             }) {
                 //Icon(Icons.Default.ArrowBack)
                 androidx.compose.material3.Icon(
@@ -208,8 +463,10 @@ fun BookSuccess(
                     contentDescription = null,
                 )
             }
-
         }
+        }
+
+        //image
         var rotate by remember {
             mutableStateOf(0f)
         }

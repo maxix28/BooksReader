@@ -12,6 +12,7 @@ fun showNotification(text:String){
 val notification = NotificationCompat.Builder(context, REMINDER_CHANEL)
     .setSmallIcon(R.drawable.ic_launcher_foreground)
     .setContentText(text)
+    .setAutoCancel(true)
    // .setContentTitle("Alarm")
     .build()
     notificationManager.notify(1,notification)

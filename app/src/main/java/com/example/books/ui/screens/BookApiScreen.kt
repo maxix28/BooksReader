@@ -113,26 +113,7 @@ fun SearchBook(
 @Composable
 fun SearchResultItem(searchInfo: SearchInfo, modifier: Modifier = Modifier, onAddBook: () -> Unit) {
 
-//    Card(
-//        modifier = modifier
-//            .fillMaxWidth()
-//            .padding(5.dp),
-//        //.height(.dp)
-//        colors = CardDefaults.cardColors(
-//            containerColor = MaterialTheme.colorScheme.onPrimary,
-//        ),
-//        elevation = CardDefaults.cardElevation(
-//            defaultElevation = 5.dp
-//        ),
-//        onClick = {
-//            bookFromApi.name = searchInfo.title
-//            bookFromApi.author = searchInfo.author
-//            onAddBook()
-//        }
-//        // onClick = { onDetail(book.id.toString()) }
-//    )
-//
-   // Row(modifier = modifier.fillMaxWidth())
+
     Card(modifier= modifier.fillMaxWidth().height(70.dp).padding(5.dp),
         onClick = {
             bookFromApi.name = searchInfo.title

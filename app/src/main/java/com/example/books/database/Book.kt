@@ -3,11 +3,13 @@ package com.example.books.database
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
 import java.sql.Time
 import java.time.LocalDateTime
 import java.util.Date
 
 @Entity(tableName = "MyBooks")
+@TypeConverters(Converter::class)
 data class Book(
     @PrimaryKey(autoGenerate = true)
     val id:Int= 0,
@@ -22,5 +24,7 @@ data class Book(
     val startDate: Date = Date(System.currentTimeMillis()),
     //var startDate: LocalDateTime,
     var FinishDate:Date? = null,
+    var totalTime:Long?= null,
+    var Quotes:List<Quotes> = emptyList()
 
     )

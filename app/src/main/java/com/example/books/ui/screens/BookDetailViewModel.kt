@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.books.data.BookRepository
 import com.example.books.database.Book
+import com.example.books.database.Quotes
 import com.example.books.ui.navigation.NavDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 
@@ -91,7 +92,36 @@ class BookDetailViewModel @Inject constructor(
             e.printStackTrace()
         }
     }
+    fun setTime(time:Long){
+        if (UIState is BookDetailUIState.Success) {
+            val currentState = UIState as BookDetailUIState.Success
+            val updatedBook =  if(currentState.book.totalTime == null) {
+               currentState.book.copy(totalTime = time)
+            }else{
+                currentState.book.totalTime?.let {
 
+                     currentState.book.copy(totalTime =  it + time)
+                }
+            }
+
+
+
+            UIState = currentState.copy(book = updatedBook!!)
+        }
+
+
+    }
+    suspend fun addQuote(quote: Quotes) {
+        if (UIState is BookDetailUIState.Success) {
+            val currentState = UIState as BookDetailUIState.Success
+            val updatedQuotes = currentState.book.Quotes.toMutableList()
+            updatedQuotes.add(quote)
+            val updatedBook = currentState.book.copy(Quotes = updatedQuotes)
+            UIState = currentState.copy(book = updatedBook)
+            // Print the updated book to verify if the quote is added
+            Log.d("Book", updatedBook.toString())
+        }
+    }
 
     suspend fun UpdateBook() =
         bookRepository.UpdateBook((UIState as BookDetailUIState.Success).book)

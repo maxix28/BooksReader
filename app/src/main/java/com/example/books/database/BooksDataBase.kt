@@ -12,7 +12,7 @@ import java.io.ByteArrayOutputStream
 import java.util.Date
 
 @TypeConverters(Converters::class)
-@Database(entities = arrayOf(Book::class), version = 8)
+@Database(entities = arrayOf(Book::class), version = 11)
 abstract  class BooksDataBase :RoomDatabase() {
 
     abstract fun bookDao():BookDao

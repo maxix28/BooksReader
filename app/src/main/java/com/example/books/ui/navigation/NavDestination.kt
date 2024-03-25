@@ -37,6 +37,13 @@ sealed class NavDestination {
         override val icon: Int = R.drawable.account_circle_fill0_wght400_grad0_opsz24
 
     }
+    object SearchBook : Destination {
+        override val route: String
+            get() = "Search Book"
+        override val icon: Int  = R.drawable.add_box_fill0_wght400_grad0_opsz24
+
+
+    }
 
 
 }

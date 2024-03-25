@@ -19,12 +19,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,14 +52,20 @@ import com.example.books.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+object bookFromApi{
+    var author: String? = null
+    var name: String? = null
+}
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AddBook(
     modifier: Modifier = Modifier,
     addViewModel: AddBookViewModel = hiltViewModel<AddBookViewModel>(),
-    afterdAdd:()->Unit
-) {
+    afterdAdd: () -> Unit,
+
+    ) {
 
 
     var selectedImageUri by remember {
@@ -66,10 +75,10 @@ fun AddBook(
     val singlePhotoPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
-            try{
+            try {
                 selectedImageUri = uri
                 addViewModel.setPhoto(uri!!)
-            }catch (e:Exception){
+            } catch (e: Exception) {
                 println("Image problem")
             }
 
@@ -80,37 +89,44 @@ fun AddBook(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(colorScheme.background),
         verticalArrangement = Arrangement.SpaceAround,
         horizontalAlignment = Alignment.CenterHorizontally
 
     ) {
-        IconButton(onClick = {
+        IconButton(
+            onClick = {
 
                 singlePhotoPicker.launch(
                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                 )
 
 
-        }, modifier = modifier.size(150.dp).background(Color.Transparent), ) {
-            Column (){
-                if(selectedImageUri== null) {
+            },
+            modifier = modifier
+                .size(150.dp)
+                .background(Color.Transparent),
+        ) {
+            Column() {
+                if (selectedImageUri == null) {
                     Icon(
                         painter = painterResource(id = R.drawable.image_fill0_wght400_grad0_opsz24),
-                        contentDescription = null, modifier = modifier.size(90.dp), tint = MaterialTheme.colorScheme.primary
+                        contentDescription = null,
+                        modifier = modifier.size(90.dp),
+                        tint = colorScheme.primary
                     )
                     Text(text = "Add book photo", fontSize = 10.sp)
-                }
-                else{
+                } else {
                     AsyncImage(
-                       model = selectedImageUri,contentDescription = null)
+                        model = selectedImageUri, contentDescription = null
+                    )
                 }
             }
 
         }
 
 
-        Column (verticalArrangement = Arrangement.Center){
+        Column(verticalArrangement = Arrangement.Center, modifier = modifier.padding(horizontal = 60.dp)) {
             OutlinedTextField(
                 value = addViewModel.UIState.name,
                 onValueChange = { addViewModel.setName(it) },
@@ -147,6 +163,7 @@ fun AddBook(
         }
 
         Button(
+            enabled =!addViewModel.UIState.pages.isEmpty() ,
             onClick = {
                 coroutineScope.launch {
                     withContext(Dispatchers.IO) {
@@ -161,10 +178,12 @@ fun AddBook(
             },
             modifier = modifier
                 //    .background(MaterialTheme.colorScheme.primary)
-                .clip(RoundedCornerShape(15.dp)).height(50.dp)
+                .clip(RoundedCornerShape(15.dp))
+                .height(50.dp)
 
         ) {
-            Text("Start reading", //modifier = modifier.padding(10.dp)
+            Text(
+                "Start reading", //modifier = modifier.padding(10.dp)
             )
         }
     }
@@ -172,8 +191,8 @@ fun AddBook(
 
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun prev() {
-//    AddBook(afterdAdd = {})
-//}
+@Preview(showBackground = true)
+@Composable
+fun prev() {
+    // AddBook(afterdAdd = {})
+}

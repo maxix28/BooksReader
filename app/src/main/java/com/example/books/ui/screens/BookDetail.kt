@@ -598,9 +598,9 @@ fun BookSuccess(
 
 
         }
-        Book.totalTime?.let {
-            Text("You already read ${timeStringFromLongWithString(it)}")
-        }
+//        Book.totalTime?.let {
+//            Text("You already read ${timeStringFromLongWithString(it)}")
+//        }
         var time by remember {
             mutableStateOf(0L)
         }
@@ -669,16 +669,16 @@ fun BookSuccess(
 
             }) {
                 //Icon(Icons.Default.ArrowBack)
-                androidx.compose.material3.Icon(
-                    painter = painterResource(id = if (!timeIsRunning) R.drawable.play_circle else R.drawable.pause_circle),
-                    contentDescription = null,
-                    modifier = modifier.size(40.dp)
-                )
+//                androidx.compose.material3.Icon(
+//                    painter = painterResource(id = if (!timeIsRunning) R.drawable.play_circle else R.drawable.pause_circle),
+//                    contentDescription = null,
+//                    modifier = modifier.size(40.dp)
+//                )
             }
             Spacer(modifier = modifier.width(20.dp))
 
         }
-        Text(text = formattedTime, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+            //Text(text = formattedTime, fontWeight = FontWeight.Bold, fontSize = 20.sp)
         CommentsFragment(state, onAddQoute = onAddQoute)
 
 

@@ -25,7 +25,7 @@ interface BookDao {
     @Query("Select * from MyBooks")
     fun getAllBooks(): Flow<List<Book>>
 
-    @Query("Select * from MyBooks where done = true")
+    @Query("Select * from MyBooks where done = 1")
     fun getDoneBooks(): Flow<List<Book>>
 
 
